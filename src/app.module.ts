@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { NotificationModule } from './notification/notification.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
