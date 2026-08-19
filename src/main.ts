@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+﻿import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
@@ -7,28 +7,22 @@ import { config } from 'dotenv';
 config();
 
 async function bootstrap() {
-  const rabbitmqUrl = process.env.RABBITMQ_URL || 'amqp://localhost:5672';
-  const queue = 'notification_queue';
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3006;
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
-      transport: Transport.RMQ,
+      transport: Transport.TCP,
       options: {
-        urls: [rabbitmqUrl],
-        queue: queue,
-        queueOptions: {
-          durable: true,
-        },
+        host: '0.0.0.0', // Để có thể kết nối từ bên ngoài container (nếu dùng Docker)
+        port: port,
       },
     },
   );
 
   await app.listen();
-  console.log(
-    `Notification Service is listening for RMQ events on queue: ${queue}`,
-  );
+  console.log(`Notification Microservice is running on port: ${port}`);
 }
 bootstrap().catch((err) => {
-  console.error(err);
+  console.error('Failed to start microservice', err);
 });
