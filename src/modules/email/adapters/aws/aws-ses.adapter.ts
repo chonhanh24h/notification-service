@@ -11,16 +11,15 @@ export class AwsSesAdapter implements IEmailService {
     private readonly senderEmail: string;
 
     constructor(private readonly configService: ConfigService) {
-        const region =
-            this.configService.get<string>('AWS_REGION') ?? 'ap-southeast-2';
+        const region = 'ap-southeast-2';
         this.senderEmail = this.configService.get<string>('SES_SENDER_EMAIL') ?? '';
-
-        this.sesClient = new SESClient({
-            region,
-            credentials: fromIni({
-                profile: this.configService.get<string>('AWS_PROFILE'),
-            }),
-        });
+        const awsProfile = this.configService.get<string>('AWS_PROFILE');
+        const clientConfig: any = { region };
+        // config both local & EKS
+        if (awsProfile) {
+            clientConfig.credentials = fromIni({ profile: awsProfile });
+        }
+        this.sesClient = new SESClient(clientConfig);
     }
 
     async sendEmail(options: SendEmailOptions) {
